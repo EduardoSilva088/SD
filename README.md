@@ -7,7 +7,7 @@
 ## Utilização:
 
 ```
-make all -> compila todos os ficheiros
+make all -> Compila todos os ficheiros
 ```
 
 ```
