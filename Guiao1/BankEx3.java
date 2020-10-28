@@ -1,7 +1,9 @@
 package Guiao1;
 
-class Bank {
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
+public class BankEx3 {
     private static class Account {
         private int balance;
         Account(int balance) {
@@ -16,14 +18,27 @@ class Bank {
   
     // Our single account, for now
     private Account savings = new Account(0);
+
+    Lock lock = new ReentrantLock();
     
     // Account balance
     public int balance() {
-        return savings.balance();
+        lock.lock();
+        try{
+            return savings.balance();
+        } finally{
+            lock.unlock();
+        }
     }
   
     // Deposit
     boolean deposit(int value) {
-        return savings.deposit(value);
+        lock.lock();
+        try{
+            return savings.deposit(value);
+        } finally{
+            lock.unlock();
+        }
+
     }
 }
