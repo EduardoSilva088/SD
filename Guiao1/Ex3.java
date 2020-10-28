@@ -1,5 +1,10 @@
 package Guiao1;
 
+/**
+ * A diferença deste exercicio para o 2 está
+ * na classe Bank.java. Foi adicionado um 
+ * Lock para criar uma exclusão mútua.
+ */
 public class Ex3 {
     public static void main(String[] args) {
         int N = 10;
