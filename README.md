@@ -1,4 +1,4 @@
-# Sistemas Distribuidos
+# Sistemas Distribuídos
 
  Neste repositório encontram-se as fichas de Sistemas Distribuidos do ano letivo 2020/2021.
  Tem também uma Makefile que ajuda no seu funcionamento.
