@@ -64,7 +64,7 @@ class BankEx1 {
             l.unlock();
         }
         // Neste ponto temos o lock global livre mas a conta está em lock
-        // ou seja, ainda está em memória
+        //ou seja, ainda está em memória
         try {
             return c.balance();
         } finally {
@@ -153,7 +153,7 @@ class BankEx1 {
             cto.l.unlock();
         }
     }
-    
+
     // sum of balances in set of accounts; 0 if some does not exist
     public int totalBalance(int[] ids) {
         int total = 0;
