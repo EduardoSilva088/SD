@@ -1,12 +1,13 @@
 package Guiao3;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import javax.security.auth.login.AccountNotFoundException;
-
-class BankEx1 {
+public class BankEx3 {
 
     private static class Account {
         private int balance;
@@ -34,8 +35,12 @@ class BankEx1 {
     }
 
     private Map<Integer, Account> map = new HashMap<Integer, Account>();
-
     private int nextId = 0; // Id de conta atribuido
+    private ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+    private Lock rLock = lock.readLock();
+    private Lock wLock = lock.writeLock();
+
+
 
     Lock l = new ReentrantLock();
 
@@ -43,47 +48,47 @@ class BankEx1 {
     public int createAccount(int balance) {
         Account c = new Account(balance);
         try {
-            l.lock();
+            wLock.lock();
             int id = nextId;
             nextId += 1;
             map.put(id, c);
             return id;
         } finally {
-            l.unlock();
+            wLock.unlock();
         }
 
     }
 
     // close account and return balance, or 0 if no such account
     public int closeAccount(int id) {
-        Account c = map.remove(id);
+        Account c;
         try {
-            l.lock();
+            wLock.lock();
+            c = map.remove(id);
             if (c == null)
                 return 0;
             c.l.lock(); // Lock sobre a conta
         } finally {
-            l.unlock();
+            wLock.unlock();
         }
-        // Neste ponto temos o lock global livre mas a conta está em lock
-        //ou seja, ainda está em memória
         try {
             return c.balance();
         } finally {
-            c.l.unlock(); // Unlock da conta
+            c.l.unlock();
         }
     }
 
     // account balance; 0 if no such account
     public int balance(int id) {
-        Account c = map.get(id);
+        Account c;
         try {
-            l.lock();
+            rLock.lock();
+            c = map.get(id);
             if (c == null)
                 return 0;
             c.l.lock();
         } finally {
-            l.unlock();
+            rLock.unlock();
         }
         try {
             return c.balance();
@@ -94,14 +99,15 @@ class BankEx1 {
 
     // deposit; fails if no such account
     public boolean deposit(int id, int value) {
-        Account c = map.get(id);
+        Account c;
         try {
-            l.lock();
+            rLock.lock();
+            c = map.get(id);
             if (c == null)
                 return false;
             c.l.lock();
         } finally {
-            l.unlock();
+            rLock.unlock();
         }
         try {
             return c.deposit(value);
@@ -112,14 +118,15 @@ class BankEx1 {
 
     // withdraw; fails if no such account or insufficient balance
     public boolean withdraw(int id, int value) {
-        Account c = map.get(id);
+        Account c;
         try {
-            l.lock();
+            rLock.lock();
+            c = map.get(id);
             if (c == null)
                 return false;
             c.l.lock();
         } finally {
-            l.unlock();
+            rLock.unlock();
         }
         try {
             return c.withdraw(value);
@@ -133,15 +140,21 @@ class BankEx1 {
     public boolean transfer(int from, int to, int value) {
         Account cfrom, cto;
         try {
-            l.lock();
+            rLock.lock();
             cfrom = map.get(from);
             cto = map.get(to);
             if (cfrom == null || cto == null)
                 return false;
-            cfrom.l.lock();
-            cto.l.lock();
+            if(from < to){
+                cfrom.l.lock();
+                cto.l.lock();
+            }
+            else{
+                cto.l.lock();
+                cfrom.l.lock();
+            }
         } finally {
-            l.unlock();
+            rLock.unlock();
         }
         try {
             try {
@@ -163,7 +176,7 @@ class BankEx1 {
         ids = ids.clone();
         Arrays.sort(ids);
         try{
-            l.lock();
+            rLock.lock();
             for(int i = 0; i < ids.length; i++){
                 acs[i] = map.get(ids[i]);
                 if (acs[i] == null)
@@ -173,7 +186,7 @@ class BankEx1 {
                 acc.l.lock();
             }
         } finally{
-            l.unlock();
+            rLock.unlock();
         }
         for(Account acc : acs){
             res += acc.balance();
@@ -181,5 +194,5 @@ class BankEx1 {
         }
         return res;
     }
-
+    
 }

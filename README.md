@@ -5,7 +5,7 @@
 
 **Guião 1:** :white_check_mark:  
 **Guião 2:** :white_check_mark:  
-**Guião 3:** :x:  
+**Guião 3:** :white_check_mark:
 **Guião 4:** :x:  
 
 ## Utilização:
