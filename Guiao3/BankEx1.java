@@ -4,7 +4,6 @@ import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import javax.security.auth.login.AccountNotFoundException;
 
 class BankEx1 {
 

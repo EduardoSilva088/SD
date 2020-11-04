@@ -1,76 +1,49 @@
 package Guiao4;
 
-import java.util.Random;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import static java.lang.Math.max;
 
-public class Agreement implements Runnable{
+public class Agreement{
 
-    private int epoca;
-    private int count;
+    private class Instance{
+        int result = Integer.MIN_VALUE;
+        int c = 0;
+    }
+
     private int n;
-    private int maior = 0;
 
-    private Lock l = new ReentrantLock();
-    private Condition c = l.newCondition();
+    private Lock l;
+    private Condition c;
+    private Instance instance;
 
     
     Agreement (int N){
         this.n = N;
-        this.epoca = 0;
-        this.count = 0;
-
+        this.l = new ReentrantLock();
+        this.c = l.newCondition();
+        this.instance = new Instance();
     }
 
     public int propose(int choice) throws InterruptedException {
-        int e;
         this.l.lock();
         try{
-            e = this.epoca;
-            count++;
-            if (this.maior < choice) this.maior = choice;
-            if (count < n){
-                while(this.epoca == e){
+            Instance instance = this.instance;
+            instance.c++;
+            instance.result = max(instance.result,choice);
+            if (instance.c < n){
+                while(instance == this.instance){
                 c.await();
                 }
             }
             else {
                 c.signalAll();
-                this.epoca++;
-                this.count = 0;
+                this.instance = new Instance();
             }
-            System.out.println(this.maior); //Teste
-            return this.maior;
+            return instance.result;
         } finally {
             this.l.unlock();
         }
     }
-
-    public void run(){
-        Random r = new Random();
-        try{
-            this.propose(r.nextInt(10000));
-        } catch (InterruptedException e) {}
-    }
-
-
-    public static void main(String[] args) {
-
-        int N = 10;
-
-        Thread t[] = new Thread[N];
-        Agreement a = new Agreement(N);
-
-        for (int i = 0; i < N; i++){
-            t[i] = new Thread(a);
-            t[i].start();
-        }
-
-        for (int i = 0; i <N; i++) 
-            try {
-                t[i].join();
-            } catch (InterruptedException e) {}
-    }
-    
 }
