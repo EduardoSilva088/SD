@@ -6,7 +6,9 @@
 **Guião 1:** :white_check_mark:  
 **Guião 2:** :white_check_mark:  
 **Guião 3:** :white_check_mark:  
-**Guião 4:** :x:  
+**Guião 4:** :white_check_mark:  
+**Guião 5:** :x:  
+
 
 ## Utilização:
 
