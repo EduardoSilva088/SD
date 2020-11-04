@@ -18,8 +18,7 @@ class Waiter implements Runnable {
             int ret = b.propose(r.nextInt(10000));
             System.out.println(id + " out " + ret);
 
-        } catch (InterruptedException e) {
-        }
+        } catch (InterruptedException e) {}
     }
 }
 
@@ -39,9 +38,7 @@ public class TestAgreement {
         try {
             for (int i = 0; i < N; i++)
                 t[i].join();
-        } catch (InterruptedException e) {
-
-        }
+        } catch (InterruptedException e) {}
 
     }
 }

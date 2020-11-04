@@ -30,9 +30,9 @@ public class BarrierEx1B {
                     c.await();
                 }
             else{
-                c.signalAll();
                 this.epoch++;
                 count = 0;
+                c.signalAll();
             }
         } finally{
             l.unlock();
