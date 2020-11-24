@@ -24,5 +24,4 @@ public class Ex2 {
         }
         System.out.println(bank.balance());
     }
-    
 }
