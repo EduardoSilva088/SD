@@ -1,15 +1,20 @@
 package Guiao7;
 
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 
 class ContactList {
     private List<Contact> contacts;
+    private Lock lock = new ReentrantLock();
 
     public ContactList() {
         contacts = new ArrayList<>();
@@ -20,26 +25,62 @@ class ContactList {
     }
 
     // @TODO
-    public boolean addContact () throws IOException {
-        return true;
+    public void addContact (DataInputStream in) throws IOException {
+        Contact contact = Contact.deserialize(in);
+        this.lock.lock();
+        try{
+            this.contacts.add(contact);
+        } finally {
+            this.lock.unlock();
+        }
     }
 
     // @TODO
-    public void getContacts () throws IOException { }
+    public List<Contact> getContacts () throws IOException {
+        List<Contact> res = new ArrayList<>();
+        res.addAll(this.contacts);
+        return res;
+    }
+
+    public void printContacts(){
+        for (Contact c : this.contacts){
+            System.out.println(c.toString());
+        }
+    }
     
 }
 
 class ServerWorker implements Runnable {
     private Socket socket;
+    private ContactList contacts;
 
     public ServerWorker (Socket socket, ContactList contactList) {
         this.socket = socket;
+        this.contacts = contactList;
     }
 
     // @TODO
     @Override
     public void run() {
+        try {
+            DataInputStream in = new DataInputStream(new BufferedInputStream(this.socket.getInputStream()));
 
+            boolean isOpen = true;
+        
+            while(isOpen){
+                this.contacts.addContact(in);
+                
+            }
+            this.contacts.printContacts();
+
+            socket.shutdownInput();
+            socket.close();
+
+            System.out.println("Connection closed.");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
 
@@ -52,6 +93,7 @@ public class Server {
 
         while (true) {
             Socket socket = serverSocket.accept();
+            System.out.println("Assigning a new client in this server.");
             Thread worker = new Thread(new ServerWorker(socket, contactList));
             worker.start();
         }

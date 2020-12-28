@@ -37,7 +37,7 @@ public class Server {
                     socket.shutdownInput();
                     socket.close();
                 } catch (NumberFormatException e) {
-                    // TODO: handle exception
+                    e.printStackTrace();
                 }
 
             }
