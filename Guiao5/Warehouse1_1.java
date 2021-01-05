@@ -13,6 +13,7 @@ class Warehouse1_1{
 
     private Lock l = new ReentrantLock();
     
+    
 
     private class Product {
         int q = 0;
@@ -38,6 +39,7 @@ class Warehouse1_1{
             l.unlock();
         }
     }
+
 
     // Errado se faltar algum produto...
     public void consume(String[] a) throws InterruptedException {
