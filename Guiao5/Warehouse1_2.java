@@ -37,27 +37,44 @@ class Warehouse1_2 {
         }
     }
 
-    // Errado se faltar algum produto...
-    public void consume(String[] a) throws InterruptedException {
-        l.lock();
-        try{
-            int i = 0;
-            while (i < a.length){
-                Product p = get(a[i]);
-                i++;
-                if(p != null){
-                    if (p.q == 0){
-                        p.c.await();
-                        i = 0;
-                    }
-                }
-            }
-            for(String s  : a){
-                get(s).q--;
-            }
-        } finally {
-            l.unlock();
-        }
-    }
 
+  // Devolve algum produto que esteja sem stock
+  private Product missing(String[] s){
+    for(String a: s){
+      Product p = get(a);
+      if(p.q==0){
+        return p;
+      }
+    }
+    return null;
+  }
+
+// Reduz o stock a cada produto
+  private Product consumeEach(String[] s){
+    for(String a: s){
+      get(a).q--;
+    }
+    return null;
+  }
+
+  private void consume(String[] a) throws InterruptedException{
+    try {
+      wharehouseLock.lock();
+
+
+      // Bloco que verifica se há algum pedido em falta a consumir
+      // Caso estejam todos disponíveis o ciclo é quebrado  
+      while(true){ 
+        Product p2 = missing(a);
+        if(p2==null){
+          break;
+        }
+        p2.productCondition.await();
+      }
+
+      consumeEach(a);
+    }finally {
+      wharehouseLock.unlock();
+    }
+  }
 }
