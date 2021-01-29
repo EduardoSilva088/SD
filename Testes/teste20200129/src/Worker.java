@@ -1,4 +1,4 @@
-package teste20200129;
+package teste20200129.src;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
