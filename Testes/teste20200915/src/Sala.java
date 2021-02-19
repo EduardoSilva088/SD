@@ -77,6 +77,7 @@ public class Sala implements SalaDeEspera {
                 if (n > 0){
                     if(this.pessoas.get(nome) == Estado.ESPERA){
                         this.pessoas.put(nome, Estado.ATENDIDA);
+                        c.signalAll();
                         n--;
                         res.add(nome);
                     }
